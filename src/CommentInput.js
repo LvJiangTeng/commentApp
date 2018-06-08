@@ -5,7 +5,23 @@ class CommentInput extends Component {
     super()
     this.state={
       username: '',
-      content: ''
+      content: '',
+      createdTime: ''
+    }
+  }
+  componentWillMount(){
+    this._loadUsername ()
+  }
+  componentDidMount(){
+    this.textarea.focus()
+  }
+  _saveUsername=(username)=>{
+    localStorage.setItem('username',username)
+  }
+  _loadUsername= ()=> {
+    const username = localStorage.getItem('username')
+    if (username) {
+      this.setState({ username })
     }
   }
   handleInputChange=e=>{
@@ -13,6 +29,10 @@ class CommentInput extends Component {
       username:e.target.value
     })
   }
+  handleInputBlur=e=>{
+    this._saveUsername(e.target.value)
+  }
+  
   handleTextAreaChange=e=>{
     this.setState({
       content:e.target.value
@@ -21,7 +41,8 @@ class CommentInput extends Component {
   handleSubmit=()=>{
     if(this.props.onSubmit){
       const { username, content } = this.state
-      this.props.onSubmit({username, content})
+      const createdTime=+new Date()
+      this.props.onSubmit({username, content,createdTime})
     }
     this.setState({ content: '' })
   }
@@ -32,13 +53,13 @@ class CommentInput extends Component {
         <div className='comment-field'>
           <span className='comment-field-name'>用户名：</span>
           <div className='comment-field-input'>
-            <input onChange={this.handleInputChange} value={this.state.value}/>
+            <input onChange={this.handleInputChange} value={this.state.username}  onBlur={this.handleInputBlur} />
           </div>
         </div>
         <div className='comment-field'>
           <span className='comment-field-name'>评论内容：</span>
           <div className='comment-field-input'>
-            <textarea onChange={this.handleTextAreaChange} value={this.state.content}/>
+            <textarea ref={(textarea)=>this.textarea=textarea} onChange={this.handleTextAreaChange} value={this.state.content}/>
           </div>
         </div>
         <div className='comment-field-button'>
